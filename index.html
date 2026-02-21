@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商業企劃實戰架構 | TONY STUDIO (v30 黃金定案版)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PDF & Canvas Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a', // Slate 900
+                        secondary: '#b45309', // Amber 700
+                        accent: '#0369a1', // Sky 700
+                        bgLight: '#f8fafc',
+                        textDark: '#334155'
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                        serif: ['"Noto Serif TC"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; scroll-behavior: smooth; font-weight: 400; color: #334155; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Noto Sans TC', sans-serif; font-weight: 700; }
+        
+        .gradient-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        
+        /* Modal Styles */
+        .modal { opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 9999; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.98); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; width: 100%; max-width: 1024px; background: white; border-radius: 0.75rem; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .modal.active .modal-content { transform: scale(1); }
+        .modal-body { overflow-y: auto; flex: 1; padding: 2rem; }
+        
+        /* Professional Table Styles */
+        .pro-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.95rem; }
+        .pro-table th { background-color: #1e293b; color: #ffffff; font-weight: 700; text-transform: uppercase; padding: 12px 15px; border: 1px solid #0f172a; text-align: left; }
+        .pro-table td { border: 1px solid #cbd5e1; padding: 12px 15px; vertical-align: top; color: #334155; }
+        .pro-table tr:nth-child(even) { background-color: #f8fafc; }
+        .pro-table tr:hover { background-color: #eef2ff; }
+
+        /* Content Styling */
+        .content-section h3 { color: #0f172a; border-bottom: 2px solid #b45309; padding-bottom: 0.5rem; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.25rem; }
+        .content-section h4 { color: #0369a1; margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .content-section p { margin-bottom: 1rem; line-height: 1.7; text-align: justify; }
+        .content-section ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .content-section li { margin-bottom: 0.5rem; line-height: 1.6; }
+        .highlight-box { background-color: #fffbeb; border-left: 4px solid #b45309; padding: 1rem; margin: 1rem 0; font-family: 'Noto Serif TC', serif; color: #78350f; }
+
+        .matrix-cell { padding: 15px; border: 1px solid #e2e8f0; vertical-align: top; }
+        
+        .tool-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 1rem; background-color: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.95rem; color: #334155; transition: all 0.2s; text-align: left; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .tool-btn:hover { background-color: #eff6ff; border-color: #3b82f6; color: #1e3a8a; transform: translateX(2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* AI Loading Animation */
+        @keyframes pulse-purple {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(147, 51, 234, 0); }
+        }
+        .ai-generating {
+            animation: pulse-purple 2s infinite;
+            pointer-events: none;
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+        
+        /* Markdown Styling */
+        .markdown-body { font-size: 1rem; line-height: 1.7; color: #334155; }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: 700; color: #1e3a8a; margin-top: 1.2em; margin-bottom: 0.6em; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; }
+        .markdown-body h4 { font-weight: 600; color: #b45309; margin-top: 1em; margin-bottom: 0.4em; }
+        .markdown-body p { margin-bottom: 0.8em; }
+        .markdown-body ul { list-style-type: disc; padding-left: 1.2em; margin-bottom: 0.8em; }
+        .markdown-body ol { list-style-type: decimal; padding-left: 1.2em; margin-bottom: 0.8em; }
+        .markdown-body li { margin-bottom: 0.3em; }
+        .markdown-body strong { color: #0f172a; font-weight: 700; background-color: #fef3c7; padding: 0 2px; rounded: 2px; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        #print-area { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur shadow-sm z-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <img src="https://i.postimg.cc/fT2sQW09/1.png" alt="TONY STUDIO Logo" class="h-10 w-auto mr-3">
+                    <span class="font-bold text-xl text-primary tracking-tight hidden md:block">| 高階企劃戰略</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                    <a href="#sostac-overview" class="text-secondary hover:text-amber-800 transition font-bold">SOSTAC®工具箱</a>
+                    <a href="#strategy" class="text-gray-600 hover:text-primary transition">TOWS 實戰</a>
+                    <a href="#workshop" class="bg-secondary text-white px-4 py-2 rounded hover:bg-amber-800 transition shadow-sm">實作工坊</a>
+                    <button onclick="openModal('modal-api-settings')" class="text-purple-600 hover:text-purple-800 font-bold border border-purple-200 px-3 py-1 rounded-full text-xs flex items-center bg-purple-50 transition">
+                        <i class="fa-solid fa-key mr-2"></i>AI 設定
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="intro" class="pt-32 pb-20 gradient-header text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center">
+            <div class="md:w-3/5 pr-8">
+                <div class="inline-block px-3 py-1 bg-white/10 rounded-full text-xs font-bold tracking-wider mb-4 border border-white/20">60年歷練 · 數位轉型 · 創新思維</div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight font-serif">商業企劃方法論<br>全方位 AI 實戰指南</h1>
+                <p class="text-lg text-slate-300 mb-8 font-light leading-relaxed">
+                    結合設計、行銷、商業與創業實務經驗。<br>
+                    由生成式 AI 創作者與資深顧問親自設計，專為新世代經理人打造的教學框架。
+                </p>
+                <div class="flex items-center space-x-6 border-t border-white/10 pt-6">
+                    <button onclick="openModal('modal-profile')" class="flex items-center group hover:bg-white/5 p-2 rounded transition cursor-pointer">
+                        <img src="https://i.postimg.cc/TPpkDFSq/TONY-lao-shi.jpg" alt="Tony Teacher" class="w-16 h-16 rounded-full object-cover border-2 border-white/50 group-hover:border-white mr-4 shadow-lg">
+                        <div class="text-left">
+                            <p class="font-bold text-lg group-hover:text-secondary transition">Tony 楊文澤 老師</p>
+                            <p class="text-slate-400 text-sm">資深顧問 / 上市公司發言人 / AI導師 <i class="fa-solid fa-circle-info ml-1"></i></p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <!-- Strategic Hierarchy Visual -->
+            <div class="md:w-2/5 mt-8 md:mt-0">
+                <div class="bg-white/5 backdrop-blur border border-white/10 p-6 rounded-lg shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">Gemini AI Inside ✨</div>
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-widest mb-4 border-b border-white/10 pb-2">Strategic Hierarchy</h3>
+                    <div class="space-y-3">
+                        <div class="flex"><div class="w-24 text-right pr-4 text-secondary font-bold text-sm">Mission</div><div class="flex-1 text-xs text-slate-300 border-l border-white/20 pl-4 font-light">存在目的 (Why we exist)</div></div>
+                        <div class="flex"><div class="w-24 text-right pr-4 text-secondary font-bold text-sm">Vision</div><div class="flex-1 text-xs text-slate-300 border-l border-white/20 pl-4 font-light">未來藍圖 (Where we go)</div></div>
+                        <div class="flex"><div class="w-24 text-right pr-4 text-white font-bold text-sm">Strategy</div><div class="flex-1 text-xs text-slate-300 border-l border-white/20 pl-4 font-light">競爭優勢 (How we win)</div></div>
+                        <div class="flex"><div class="w-24 text-right pr-4 text-slate-400 font-bold text-sm">Tactics</div><div class="flex-1 text-xs text-slate-300 border-l border-white/20 pl-4 font-light">行銷組合 (The Details)</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOSTAC Overview -->
+    <section id="sostac-overview" class="py-20 bg-gray-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-secondary font-bold uppercase tracking-wider text-sm">PLANNING TOOLKIT</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-primary font-serif mt-2">SOSTAC® 企劃程序與工具箱</h2>
+                <p class="mt-4 text-gray-600 max-w-3xl mx-auto font-light">
+                    點擊各階段下方的按鈕，即可打開該方法論的<strong class="text-secondary font-bold">完整教學視窗</strong>。<br>
+                    請先閱讀理論基礎，再使用內建的 AI 助教進行深度探索或語音朗讀。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- S -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition relative">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-bold text-xl mr-3">S</div>
+                        <div><h3 class="text-lg font-bold text-gray-900">Situation 現況分析</h3><p class="text-xs text-gray-500">Where are we now?</p></div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="openModal('modal-external')" class="tool-btn"><span><i class="fa-solid fa-earth-americas mr-3 text-secondary"></i>外部環境 (PESTLE/5力)</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                        <button onclick="openModal('modal-internal')" class="tool-btn"><span><i class="fa-solid fa-building mr-3 text-secondary"></i>內部資源 (RBV)</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                        <button onclick="openModal('modal-jtbd')" class="tool-btn"><span><i class="fa-solid fa-users-viewfinder mr-3 text-secondary"></i>顧客洞察 (JTBD)</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                    </div>
+                </div>
+                <!-- O -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition relative">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-bold text-xl mr-3">O</div>
+                        <div><h3 class="text-lg font-bold text-gray-900">Objectives 行銷目標</h3><p class="text-xs text-gray-500">Where do we want to be?</p></div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="openModal('modal-objective-hierarchy')" class="tool-btn"><span><i class="fa-solid fa-sitemap mr-3 text-secondary"></i>目標層級體系</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                        <button onclick="openModal('modal-smart-pro')" class="tool-btn"><span><i class="fa-solid fa-bullseye mr-3 text-secondary"></i>SMART 原則</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                    </div>
+                </div>
+                <!-- S -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition relative border-b-4 border-b-secondary">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-secondary text-white rounded-lg flex items-center justify-center font-bold text-xl mr-3">S</div>
+                        <div><h3 class="text-lg font-bold text-gray-900">Strategy 行銷策略</h3><p class="text-xs text-gray-500">How do we get there?</p></div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="scrollToSection('strategy')" class="tool-btn bg-amber-50 border-amber-100 hover:bg-amber-100 text-amber-900"><span><i class="fa-solid fa-chess mr-3"></i>前往 TOWS 矩陣實戰區</span><i class="fa-solid fa-arrow-down text-xs"></i></button>
+                        <button onclick="openModal('modal-stp')" class="tool-btn"><span><i class="fa-solid fa-layer-group mr-3 text-secondary"></i>STP 市場定位</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                        <button onclick="openModal('modal-ansoff')" class="tool-btn"><span><i class="fa-solid fa-expand mr-3 text-secondary"></i>Ansoff 成長矩陣</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                        <button onclick="openModal('modal-plc')" class="tool-btn"><span><i class="fa-solid fa-chart-line mr-3 text-secondary"></i>PLC 產品生命週期</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                    </div>
+                </div>
+                <!-- T -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition relative">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-bold text-xl mr-3">T</div>
+                        <div><h3 class="text-lg font-bold text-gray-900">Tactics 行銷戰術</h3><p class="text-xs text-gray-500">The Details of Strategy</p></div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="openModal('modal-7p')" class="tool-btn"><span><i class="fa-solid fa-cubes-stacked mr-3 text-secondary"></i>7P 行銷組合</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                        <button onclick="openModal('modal-pricing')" class="tool-btn"><span><i class="fa-solid fa-tag mr-3 text-secondary"></i>定價戰術</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                    </div>
+                </div>
+                <!-- A -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition relative">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-bold text-xl mr-3">A</div>
+                        <div><h3 class="text-lg font-bold text-gray-900">Action 行動計畫</h3><p class="text-xs text-gray-500">Who does what and when?</p></div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="openModal('modal-action-pro')" class="tool-btn"><span><i class="fa-solid fa-list-check mr-3 text-secondary"></i>專案管理 (甘特圖/預算)</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                    </div>
+                </div>
+                <!-- C -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition relative">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-bold text-xl mr-3">C</div>
+                        <div><h3 class="text-lg font-bold text-gray-900">Control 績效管理</h3><p class="text-xs text-gray-500">How do we monitor?</p></div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="openModal('modal-control-pro')" class="tool-btn"><span><i class="fa-solid fa-chart-pie mr-3 text-secondary"></i>KPI 與 PDCA 循環</span><i class="fa-solid fa-chevron-right text-xs text-gray-300"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Strategy (TOWS Matrix) -->
+    <section id="strategy" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12 border-l-4 border-secondary pl-6">
+                <h2 class="text-3xl font-bold text-primary font-serif">貳、策略實戰：TOWS 矩陣</h2>
+                <p class="mt-2 text-gray-600 font-light">Strategy Formulation: Matching Strengths & Opportunities</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 mb-12 relative">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-primary">TOWS 交叉策略矩陣 (完整版)</h3>
+                        <p class="text-sm text-gray-500 mt-1">請輸入 S/W/O/T，AI 可協助您配對並產出策略。</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="btn-tows-ai" onclick="callGeminiTOWS()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded hover:shadow-lg text-sm font-bold shadow transition flex items-center">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>AI 幫我想策略
+                        </button>
+                        <button onclick="exportTOWS('word')" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-bold shadow transition"><i class="fa-solid fa-file-word mr-2"></i>匯出 Word</button>
+                        <button onclick="exportTOWS('pdf')" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm font-bold shadow transition"><i class="fa-solid fa-file-pdf mr-2"></i>匯出 PDF</button>
+                    </div>
+                </div>
+                <!-- TOWS Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse min-w-[800px]" id="tows-table">
+                        <tr>
+                            <td class="bg-white border-none p-2 w-1/4"><div class="text-center font-bold text-gray-400 italic">Internal / External</div></td>
+                            <td class="matrix-cell bg-blue-50 w-1/3"><label class="block font-bold text-blue-900 mb-2">Strengths (優勢)</label><textarea id="t_s" class="w-full h-24 text-sm bg-white border border-blue-200 rounded p-2 focus:ring-blue-500 focus:border-blue-500 font-light" placeholder="S1. 品牌知名度高..."></textarea></td>
+                            <td class="matrix-cell bg-orange-50 w-1/3"><label class="block font-bold text-orange-900 mb-2">Weaknesses (劣勢)</label><textarea id="t_w" class="w-full h-24 text-sm bg-white border border-orange-200 rounded p-2 focus:ring-orange-500 focus:border-orange-500 font-light" placeholder="W1. 資金不足..."></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="matrix-cell bg-green-50"><label class="block font-bold text-green-900 mb-2">Opportunities (機會)</label><textarea id="t_o" class="w-full h-32 text-sm bg-white border border-green-200 rounded p-2 focus:ring-green-500 focus:border-green-500 font-light" placeholder="O1. AI 技術成熟..."></textarea></td>
+                            <td class="matrix-cell bg-white hover:bg-blue-50 transition"><div class="flex justify-between items-center mb-2"><span class="font-bold text-primary">SO 策略 (乘勢)</span></div><textarea id="t_so" class="w-full h-32 text-sm bg-gray-50 border border-gray-300 rounded p-2 font-light"></textarea></td>
+                            <td class="matrix-cell bg-white hover:bg-orange-50 transition"><div class="flex justify-between items-center mb-2"><span class="font-bold text-primary">WO 策略 (轉型)</span></div><textarea id="t_wo" class="w-full h-32 text-sm bg-gray-50 border border-gray-300 rounded p-2 font-light"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="matrix-cell bg-red-50"><label class="block font-bold text-red-900 mb-2">Threats (威脅)</label><textarea id="t_t" class="w-full h-32 text-sm bg-white border border-red-200 rounded p-2 focus:ring-red-500 focus:border-red-500 font-light" placeholder="T1. 對手降價..."></textarea></td>
+                            <td class="matrix-cell bg-white hover:bg-blue-50 transition"><div class="flex justify-between items-center mb-2"><span class="font-bold text-primary">ST 策略 (防禦)</span></div><textarea id="t_st" class="w-full h-32 text-sm bg-gray-50 border border-gray-300 rounded p-2 font-light"></textarea></td>
+                            <td class="matrix-cell bg-white hover:bg-red-50 transition"><div class="flex justify-between items-center mb-2"><span class="font-bold text-primary">WT 策略 (撤退)</span></div><textarea id="t_wt" class="w-full h-32 text-sm bg-gray-50 border border-gray-300 rounded p-2 font-light"></textarea></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workshop (One Page Proposal) -->
+    <section id="workshop" class="py-20 bg-slate-900 text-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold font-serif text-secondary">實戰演練：TBSA 一頁企劃書</h2>
+                <p class="mt-2 text-slate-400 font-light">將上述分析與策略，濃縮為一張可溝通的 Executive Summary。</p>
+            </div>
+            
+            <div class="bg-white text-gray-800 rounded-xl overflow-hidden flex flex-col md:flex-row shadow-2xl">
+                <!-- Form -->
+                <div class="p-8 md:w-1/2 border-r border-gray-200 bg-gray-50">
+                    <form id="proposalForm" class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Project Name</label>
+                            <input type="text" id="p_name" class="w-full border border-gray-300 rounded p-2 text-sm focus:border-secondary focus:ring-secondary mb-3 font-light" placeholder="例如：2025 AI 黑客松">
+                            
+                            <div class="flex flex-col gap-2 p-3 bg-gray-50 rounded border border-gray-200">
+                                <label class="text-xs font-bold text-primary">🤖 AI 輔助生成模式：</label>
+                                <div class="flex gap-2">
+                                    <button type="button" id="btn-prop-ai" onclick="callGeminiProposal()" class="flex-1 bg-white border border-gray-300 text-gray-600 font-bold py-2 px-3 rounded hover:bg-gray-100 text-xs flex items-center justify-center transition shadow-sm">
+                                        <i class="fa-solid fa-list-ul mr-2 text-secondary"></i>擬初稿 (精簡條列)
+                                    </button>
+                                    <button type="button" id="btn-prop-full-ai" onclick="callGeminiFullProposal()" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-3 rounded hover:shadow-lg text-xs flex items-center justify-center transition shadow-md">
+                                        <i class="fa-solid fa-pen-nib mr-2"></i>完整企劃 (策略敘事)
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-1 font-light">* 完整企劃模式由 AI 進行內外部推演，產出具備邏輯的敘述性文章。</p>
+                            </div>
+                        </div>
+                        <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">1. 目的與效益 (Why)</label><textarea id="p_why" class="w-full border border-gray-300 rounded p-2 text-sm h-32 font-light"></textarea></div>
+                        <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">2. 內容要點 (What)</label><textarea id="p_what" class="w-full border border-gray-300 rounded p-2 text-sm h-32 font-light"></textarea></div>
+                        <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">3. 實施方式 (How)</label><textarea id="p_how" class="w-full border border-gray-300 rounded p-2 text-sm h-32 font-light"></textarea></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">4. 執行團隊 (Who)</label><textarea id="p_who" class="w-full border border-gray-300 rounded p-2 text-sm h-24 font-light"></textarea></div>
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">5. 所需經費 (How Much)</label><textarea id="p_cost" class="w-full border border-gray-300 rounded p-2 text-sm h-24 font-light"></textarea></div>
+                        </div>
+                        <button type="button" onclick="generateProposal()" class="w-full bg-primary text-white font-bold py-3 rounded hover:bg-slate-800 transition mt-2 mb-2">生成 / 更新預覽</button>
+                    </form>
+                </div>
+                <!-- Preview & Export -->
+                <div class="p-8 md:w-1/2 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Preview Document</h3>
+                        <div class="space-x-2 flex items-center">
+                            <button id="btn-read-proposal" onclick="readAloudProposal()" class="px-3 py-1 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700 transition flex items-center"><i class="fa-solid fa-volume-high mr-1"></i>朗讀企劃</button>
+                            <button onclick="openModal('modal-fullscreen-preview')" class="px-3 py-1 bg-amber-500 text-white rounded text-xs font-bold hover:bg-amber-600 transition flex items-center"><i class="fa-solid fa-expand mr-1"></i>全螢幕閱讀</button>
+                            <button onclick="exportProposal('word')" class="px-3 py-1 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition">匯出 Word</button>
+                            <button onclick="exportProposal('pdf')" class="px-3 py-1 bg-red-600 text-white rounded text-xs font-bold hover:bg-red-700 transition">匯出 PDF</button>
+                        </div>
+                    </div>
+                    <div id="proposalPreview" class="border-2 border-gray-200 p-8 rounded-lg h-full relative bg-white overflow-hidden">
+                        <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-gray-300"><i class="fa-regular fa-file-lines text-6xl mb-4"></i><p>等待輸入資料...</p></div>
+                        <div id="contentState" class="hidden h-full flex flex-col">
+                             <div class="border-b-2 border-primary pb-4 mb-4"><h2 id="view_name" class="text-2xl font-serif font-bold text-primary"></h2><p class="text-xs text-gray-500 mt-1">TBSA Advanced Planning Format (SOSTAC® Inside)</p></div>
+                             <div class="space-y-4 flex-1 text-sm overflow-y-auto pr-2 custom-scrollbar markdown-body">
+                                 <div><h4 class="font-bold text-secondary text-xs uppercase mb-1">1. Objectives & Benefits</h4><div id="view_why" class="text-gray-700 text-sm leading-relaxed font-light"></div></div>
+                                 <div><h4 class="font-bold text-secondary text-xs uppercase mb-1">2. Core Content</h4><div id="view_what" class="text-gray-700 text-sm leading-relaxed font-light"></div></div>
+                                 <div><h4 class="font-bold text-secondary text-xs uppercase mb-1">3. Implementation</h4><div id="view_how" class="text-gray-700 text-sm leading-relaxed font-light"></div></div>
+                                 <div class="bg-gray-50 p-3 rounded border border-gray-100 mt-4"><div class="flex justify-between items-start gap-4"><div class="w-1/2"><span class="block text-xs font-bold text-gray-400 mb-1">EXECUTION TEAM</span><div id="view_who" class="font-bold text-gray-800 text-xs whitespace-pre-line font-light"></div></div><div class="w-1/2 text-right border-l border-gray-200 pl-4"><span class="block text-xs font-bold text-gray-400 mb-1">ESTIMATED BUDGET</span><div id="view_cost" class="font-bold text-red-700 text-xs font-mono whitespace-pre-line"></div></div></div></div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW: Full Screen Preview Modal -->
+    <div id="modal-fullscreen-preview" class="modal fixed inset-0 bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm z-[10000]">
+        <div class="modal-content bg-white w-full max-w-6xl h-[95vh] rounded-xl shadow-2xl relative">
+            <button onclick="closeModal('modal-fullscreen-preview')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 text-3xl transition z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <div id="fullscreen-content" class="markdown-body text-lg leading-relaxed max-w-4xl mx-auto pt-4 font-light"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Print Container -->
+    <div id="print-container"></div>
+
+    <!-- ========================= -->
+    <!-- MODALS (EDUCATIONAL CONTENT) -->
+    <!-- ========================= -->
+
+    <!-- Modal: API Settings -->
+    <div id="modal-api-settings" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm"><div class="modal-content bg-white w-full max-w-md p-8 rounded-xl relative"><div class="modal-body"><button onclick="closeModal('modal-api-settings')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl transition"><i class="fa-solid fa-xmark"></i></button><h2 class="text-xl font-bold text-primary mb-4 flex items-center"><i class="fa-solid fa-robot mr-2 text-purple-600"></i> AI 智能設定</h2><p class="text-sm text-gray-600 mb-4">請輸入您的 Google Gemini API Key。</p><div class="mb-4"><label class="block text-sm font-bold text-gray-700 mb-2">Gemini API Key</label><input type="password" id="gemini-api-key" class="w-full border border-gray-300 rounded p-2 text-sm focus:border-purple-500" placeholder="Paste Key here..."></div><button onclick="saveApiKey()" class="w-full bg-purple-600 text-white font-bold py-2 rounded hover:bg-purple-700 transition">儲存設定</button><p class="text-xs text-gray-400 mt-4 text-center">沒有 Key? <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-purple-600 hover:underline">Google AI Studio</a></p></div></div></div>
+
+    <!-- Modal: External Analysis (PESTLE) -->
+    <div id="modal-external" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-xl shadow-2xl relative">
+            <button onclick="closeModal('modal-external')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl transition z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold text-primary mb-4">外部環境掃描 (External Analysis)</h2>
+                <div class="consultant-note">
+                    <strong>Tony 老師提示：</strong> 這是你「無法控制」的變因。重點不在於列出所有法規，而在於分析「這些變化對我的生意是利(O)還是弊(T)？」
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                    <div>
+                        <h3 class="font-bold text-lg mb-2 border-b-2 border-primary pb-2 text-primary">1. PESTLE 宏觀環境</h3>
+                        <p class="text-sm text-gray-600 mb-2 font-light">分析大環境的六大構面，預測趨勢。</p>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li><strong>Political (政治):</strong> 政府穩定度、稅收政策、貿易限制、補助計畫。</li>
+                            <li><strong>Economic (經濟):</strong> 經濟成長率(GDP)、通貨膨脹、匯率、利率、消費者可支配所得。</li>
+                            <li><strong>Social (社會):</strong> 人口結構(老化/少子化)、生活型態轉變、教育程度、文化價值觀。</li>
+                            <li><strong>Technological (科技):</strong> AI技術應用、自動化生產、新材料研發、專利保護。</li>
+                            <li><strong>Legal (法律):</strong> 勞動基準法、消費者保護法、智慧財產權、GDPR個資法。</li>
+                            <li><strong>Environmental (環境):</strong> 碳中和目標、ESG法規、氣候變遷影響、廢棄物處理。</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg mb-2 border-b-2 border-primary pb-2 text-primary">2. Porter's 5 Forces 產業競爭</h3>
+                        <p class="text-sm text-gray-600 mb-2 font-light">分析產業結構與獲利潛力。</p>
+                        <ul class="space-y-3 text-sm text-gray-700">
+                            <li><strong>供應商議價力:</strong> 原料是否獨占？轉換成本高嗎？(高則威脅大)</li>
+                            <li><strong>購買者議價力:</strong> 客戶是否集中？對價格敏感嗎？(高則威脅大)</li>
+                            <li><strong>新進入者威脅:</strong> 產業門檻低嗎？資金需求少嗎？</li>
+                            <li><strong>替代品威脅:</strong> 有無更便宜/方便的解決方案取代現有產品？</li>
+                            <li><strong>現有競爭者:</strong> 價格戰是否激烈？產品差異化程度低嗎？</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <h4 class="font-bold text-purple-700 mb-2"><i class="fa-solid fa-robot mr-2"></i>AI 智能助教</h4>
+                    <p class="text-xs text-gray-500 mb-2 font-light">想知道如何將這些理論應用在您的產業嗎？請輸入 API Key 後點擊下方按鈕。</p>
+                    <button onclick="callGeminiExplain('PESTLE & 5 Forces', 'ai-content-ext')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-ext" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Internal Analysis (RBV) -->
+    <div id="modal-internal" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-3xl rounded-xl relative">
+            <button onclick="closeModal('modal-internal')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold text-primary mb-4">內部資源盤點 (Internal Analysis)</h2>
+                <div class="consultant-note">
+                    <strong>Tony 老師提示：</strong> 建議使用 RBV (資源基礎觀點)。只有具備 <strong>VRIO</strong> (有價值、稀缺、難以模仿、組織可利用) 的資源，才是真正的競爭優勢。
+                </div>
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <div class="bg-blue-50 p-4 rounded border border-blue-100">
+                        <h3 class="font-bold text-blue-900 mb-2">有形資源 (Tangible)</h3>
+                        <p class="text-xs text-gray-500 mb-2 font-light">看得見、摸得著的資產。</p>
+                        <ul class="text-sm list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>財務資源：</strong> 現金流、融資能力、負債比。</li>
+                            <li><strong>實體資產：</strong> 廠房、黃金地段店面、先進設備。</li>
+                            <li><strong>人力規模：</strong> 員工數量、組織架構完整性。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded border border-blue-100">
+                        <h3 class="font-bold text-blue-900 mb-2">無形資源 (Intangible)</h3>
+                        <p class="text-xs text-gray-500 mb-2 font-light">看不見，但往往更有價值。</p>
+                        <ul class="text-sm list-disc list-inside space-y-2 text-gray-700">
+                            <li><strong>品牌權益：</strong> 知名度、顧客忠誠度、品牌聯想。</li>
+                            <li><strong>技術能力：</strong> 專利、獨家配方、研發 Know-how。</li>
+                            <li><strong>企業文化：</strong> 創新氛圍、快速反應的團隊流程。</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <button onclick="callGeminiExplain('RBV 資源基礎觀點', 'ai-content-internal')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-internal" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: JTBD -->
+    <div id="modal-jtbd" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-3xl rounded-xl relative">
+            <button onclick="closeModal('modal-jtbd')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold text-primary mb-2">顧客洞察：JTBD (Jobs to be Done)</h2>
+                <p class="text-gray-500 mb-6 border-b pb-4 font-light">"People don't want to buy a quarter-inch drill. They want a quarter-inch hole." - Theodore Levitt</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-6">
+                    <div class="p-6 border rounded-lg hover:shadow-md transition">
+                        <div class="text-3xl text-primary mb-3"><i class="fa-solid fa-wrench"></i></div>
+                        <h3 class="font-bold text-lg mb-2">功能性任務</h3>
+                        <p class="text-sm text-gray-600">顧客想完成的具體工作或解決的問題。<br><strong>例：</strong>我想把這幅畫掛在牆上，所以我需要一個工具。</p>
+                    </div>
+                    <div class="p-6 border rounded-lg hover:shadow-md transition">
+                        <div class="text-3xl text-secondary mb-3"><i class="fa-solid fa-heart"></i></div>
+                        <h3 class="font-bold text-lg mb-2">情感性任務</h3>
+                        <p class="text-sm text-gray-600">顧客在過程中想獲得的個人感受。<br><strong>例：</strong>看著掛好的畫，我希望感覺家裡很溫馨、放鬆。</p>
+                    </div>
+                    <div class="p-6 border rounded-lg hover:shadow-md transition">
+                        <div class="text-3xl text-accent mb-3"><i class="fa-solid fa-users"></i></div>
+                        <h3 class="font-bold text-lg mb-2">社交性任務</h3>
+                        <p class="text-sm text-gray-600">顧客希望在他人眼中呈現的形象。<br><strong>例：</strong>朋友來家裡時，我希望他們覺得我有藝術品味。</p>
+                    </div>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <button onclick="callGeminiExplain('Jobs to be Done (JTBD)', 'ai-content-jtbd')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-jtbd" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: STP -->
+    <div id="modal-stp" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-xl shadow-2xl relative">
+            <button onclick="closeModal('modal-stp')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold text-primary mb-6">STP 市場定位策略</h2>
+                <div class="space-y-8">
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+                        <h3 class="flex items-center text-xl font-bold text-blue-800 mb-3"><span class="w-8 h-8 rounded-full bg-blue-800 text-white flex items-center justify-center mr-3 text-sm">S</span> Segmentation 市場區隔</h3>
+                        <p class="text-sm text-gray-600 mb-4 font-light">將異質的大市場，依據特定變數切分為數個同質性高的小群體。</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                            <div class="bg-white p-3 rounded shadow-sm border border-blue-200">
+                                <strong>1. 地理變數</strong><br><span class="text-xs text-gray-500">國家、城市、氣候、人口密度。</span>
+                            </div>
+                            <div class="bg-white p-3 rounded shadow-sm border border-blue-200">
+                                <strong>2. 人口變數</strong><br><span class="text-xs text-gray-500">年齡、性別、職業、所得、教育程度。</span>
+                            </div>
+                            <div class="bg-white p-3 rounded shadow-sm border border-blue-200">
+                                <strong>3. 心理變數</strong><br><span class="text-xs text-gray-500">社會階層、價值觀、生活型態、個性。</span>
+                            </div>
+                            <div class="bg-white p-3 rounded shadow-sm border border-blue-200">
+                                <strong>4. 行為變數</strong><br><span class="text-xs text-gray-500">使用時機、追求利益、使用率、忠誠度。</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                        <h3 class="flex items-center text-xl font-bold text-blue-600 mb-3"><span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mr-3 text-sm">T</span> Targeting 目標市場選擇</h3>
+                        <p class="text-sm text-gray-600 mb-2 font-light">從區隔出的市場中，選擇一個或多個作為目標。評估標準：</p>
+                        <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
+                            <li><strong>市場規模 (Size):</strong> 餅夠大嗎？</li>
+                            <li><strong>成長性 (Growth):</strong> 未來會變大嗎？</li>
+                            <li><strong>可獲利性 (Profitability):</strong> 利潤夠高嗎？</li>
+                            <li><strong>競爭強度 (Competition):</strong> 對手太強嗎？</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900 p-6 rounded-xl text-white">
+                        <h3 class="flex items-center text-xl font-bold text-white mb-3"><span class="w-8 h-8 rounded-full bg-white text-gray-900 flex items-center justify-center mr-3 text-sm">P</span> Positioning 市場定位</h3>
+                        <p class="text-sm text-gray-300 mb-4 font-light">在目標顧客心中佔據一個獨特且有價值的位置。價值主張公式：</p>
+                        <div class="bg-gray-800 p-4 rounded border-l-4 border-secondary text-sm italic font-serif">
+                            "For [目標客群], [品牌名] is the [產品類別] that [關鍵利益], unlike [競爭者], we [獨特優勢]."
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg mt-6">
+                    <button onclick="callGeminiExplain('STP 行銷策略', 'ai-content-stp')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-stp" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ansoff -->
+    <div id="modal-ansoff" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-xl relative">
+            <button onclick="closeModal('modal-ansoff')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold text-primary mb-2">安索夫矩陣 (Ansoff Matrix)</h2>
+                <p class="text-gray-500 mb-6 font-light">企業成長策略的選擇工具：產品 vs 市場。</p>
+                <div class="grid grid-cols-2 gap-4 h-64 mb-6">
+                    <div class="bg-blue-100 p-4 flex flex-col justify-center items-center text-center rounded border-2 border-blue-200">
+                        <h4 class="font-bold text-xl text-blue-900 mb-1">1. 市場滲透</h4>
+                        <span class="text-xs mb-2">舊產品 x 舊市場</span>
+                        <p class="text-xs text-gray-700">風險最低。促銷、搶市佔。</p>
+                    </div>
+                    <div class="bg-yellow-100 p-4 flex flex-col justify-center items-center text-center rounded border-2 border-yellow-200">
+                        <h4 class="font-bold text-xl text-yellow-900 mb-1">2. 產品開發</h4>
+                        <span class="text-xs mb-2">新產品 x 舊市場</span>
+                        <p class="text-xs text-gray-700">風險中等。賣新東西給老客戶。</p>
+                    </div>
+                    <div class="bg-green-100 p-4 flex flex-col justify-center items-center text-center rounded border-2 border-green-200">
+                        <h4 class="font-bold text-xl text-green-900 mb-1">3. 市場開發</h4>
+                        <span class="text-xs mb-2">舊產品 x 新市場</span>
+                        <p class="text-xs text-gray-700">風險中等。賣老東西給新客戶(海外)。</p>
+                    </div>
+                    <div class="bg-red-100 p-4 flex flex-col justify-center items-center text-center rounded border-2 border-red-200">
+                        <h4 class="font-bold text-xl text-red-900 mb-1">4. 多角化</h4>
+                        <span class="text-xs mb-2">新產品 x 新市場</span>
+                        <p class="text-xs text-gray-700">風險最高。跨足全新領域。</p>
+                    </div>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <button onclick="callGeminiExplain('Ansoff 安索夫矩陣', 'ai-content-ansoff')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-ansoff" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: 7P -->
+    <div id="modal-7p" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-xl relative">
+            <button onclick="closeModal('modal-7p')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold text-primary mb-6">7P 行銷組合 (服務行銷觀點)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                    <div class="space-y-4">
+                        <h3 class="font-bold border-b-2 border-gray-200 pb-2 text-gray-700 text-lg">傳統 4P (Product Marketing)</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <strong class="block text-primary mb-1">Product (產品)</strong>
+                                核心利益、實體規格、包裝、品牌、延伸服務(保固)。
+                            </li>
+                            <li class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <strong class="block text-primary mb-1">Price (價格)</strong>
+                                定價策略、折扣、付款條件、信用條款。
+                            </li>
+                            <li class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <strong class="block text-primary mb-1">Place (通路)</strong>
+                                通路覆蓋率、庫存物流、線上線下整合(OMO)、地點便利性。
+                            </li>
+                            <li class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <strong class="block text-primary mb-1">Promotion (推廣)</strong>
+                                整合行銷溝通 (IMC)：廣告、公關、促銷、人員銷售、直效行銷。
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="font-bold border-b-2 border-secondary pb-2 text-secondary text-lg">服務業新增 3P (Service Marketing)</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="p-4 bg-amber-50 rounded border border-amber-100">
+                                <strong class="block text-secondary mb-1">People (人員)</strong>
+                                員工是品牌的靈魂。選才、訓練、激勵、服裝儀容至關重要。<br>
+                                <span class="text-xs text-gray-500">例：鼎泰豐的服務員。</span>
+                            </li>
+                            <li class="p-4 bg-amber-50 rounded border border-amber-100">
+                                <strong class="block text-secondary mb-1">Process (流程)</strong>
+                                服務交付的 SOP。如何減少顧客等待？如何處理客訴？流程是否順暢？<br>
+                                <span class="text-xs text-gray-500">例：自助點餐機流程。</span>
+                            </li>
+                            <li class="p-4 bg-amber-50 rounded border border-amber-100">
+                                <strong class="block text-secondary mb-1">Physical Evidence (有形展示)</strong>
+                                看不見的服務需要看得見的線索。裝潢、氣味、網頁設計、報告書質感。<br>
+                                <span class="text-xs text-gray-500">例：五星級飯店的大廳氣味。</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <button onclick="callGeminiExplain('7P 服務行銷組合', 'ai-content-7p')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-7p" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Pricing -->
+    <div id="modal-pricing" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-xl relative">
+            <button onclick="closeModal('modal-pricing')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold mb-4 text-primary">定價戰術 (Pricing Strategy)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="border p-4 rounded bg-gray-50">
+                        <h3 class="font-bold text-lg mb-2 text-blue-800">1. 新產品定價</h3>
+                        <ul class="text-sm list-disc list-inside space-y-2">
+                            <li><strong>市場撇脂 (Skimming)：</strong>設定高價，鎖定對價格不敏感的客群，隨後慢慢降價。 (例：iPhone)</li>
+                            <li><strong>市場滲透 (Penetration)：</strong>設定低價，快速搶佔市佔率，阻絕競爭者。 (例：小米)</li>
+                        </ul>
+                    </div>
+                    <div class="border p-4 rounded bg-gray-50">
+                        <h3 class="font-bold text-lg mb-2 text-green-800">2. 產品組合定價</h3>
+                        <ul class="text-sm list-disc list-inside space-y-2">
+                            <li><strong>產品線定價：</strong>依據功能與品質設定不同價位帶。</li>
+                            <li><strong>互補產品定價：</strong>主產品便宜，耗材貴 (Captive Product)。 (例：印表機與墨水)</li>
+                            <li><strong>搭售定價 (Bundling)：</strong>套餐比單點便宜。</li>
+                        </ul>
+                    </div>
+                    <div class="border p-4 rounded bg-gray-50 md:col-span-2">
+                        <h3 class="font-bold text-lg mb-2 text-purple-800">3. 心理定價</h3>
+                        <ul class="text-sm list-disc list-inside space-y-2">
+                            <li><strong>畸零定價：</strong>$99 vs $100。</li>
+                            <li><strong>參考定價 (Anchoring)：</strong>原價 $1000 特價 $500。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <button onclick="callGeminiExplain('定價策略與心理定價', 'ai-content-pricing')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-pricing" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: PLC -->
+    <div id="modal-plc" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-5xl rounded-xl relative">
+            <button onclick="closeModal('modal-plc')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold mb-4 text-primary">產品生命週期 (PLC) 策略對照表</h2>
+                <p class="mb-4 text-gray-600 font-light">不同階段的產品，需要截然不同的行銷組合策略。</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse border border-gray-200 pro-table">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-3 border">階段</th>
+                                <th class="p-3 border">導入期 (Intro)</th>
+                                <th class="p-3 border">成長期 (Growth)</th>
+                                <th class="p-3 border">成熟期 (Maturity)</th>
+                                <th class="p-3 border">衰退期 (Decline)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-3 border font-bold">銷售/利潤</td>
+                                <td class="p-3 border">銷售低，利潤負</td>
+                                <td class="p-3 border">銷售激增，利潤頂峰</td>
+                                <td class="p-3 border">銷售頂峰，利潤下滑</td>
+                                <td class="p-3 border">兩者皆下滑</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 border font-bold">顧客特徵</td>
+                                <td class="p-3 border">創新者 (Innovators)</td>
+                                <td class="p-3 border">早期採用者</td>
+                                <td class="p-3 border">早期/晚期大眾</td>
+                                <td class="p-3 border">落後者 (Laggards)</td>
+                            </tr>
+                             <tr>
+                                <td class="p-3 border font-bold bg-blue-50">策略重點</td>
+                                <td class="p-3 border bg-blue-50">建立知名度，試用</td>
+                                <td class="p-3 border bg-blue-50">極大化市佔率</td>
+                                <td class="p-3 border bg-blue-50">保衛市佔，最大化利潤</td>
+                                <td class="p-3 border bg-blue-50">收割或撤退</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 border font-bold">產品 (P)</td>
+                                <td class="p-3 border">基本款</td>
+                                <td class="p-3 border">增加特色/服務</td>
+                                <td class="p-3 border">多樣化/差異化</td>
+                                <td class="p-3 border">淘汰弱勢產品</td>
+                            </tr>
+                             <tr>
+                                <td class="p-3 border font-bold">價格 (P)</td>
+                                <td class="p-3 border">撇脂或滲透</td>
+                                <td class="p-3 border">滲透以搶市佔</td>
+                                <td class="p-3 border">價格戰/對手定價</td>
+                                <td class="p-3 border">降價</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg mt-4">
+                    <button onclick="callGeminiExplain('產品生命週期 (PLC)', 'ai-content-plc')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-plc" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Action -->
+    <div id="modal-action-pro" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-5xl rounded-xl relative">
+            <button onclick="closeModal('modal-action-pro')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold mb-4 text-primary">行動計畫與專案管理 (Action)</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-bold text-lg text-secondary mb-2 border-l-4 border-secondary pl-2">1. 專案管理鐵三角 (Triple Constraint)</h3>
+                        <p class="text-sm text-gray-600 mb-2 font-light">任何專案都受制於三個因素，調整其中一個必影響其他。</p>
+                        <div class="flex gap-4 text-center text-sm">
+                            <div class="bg-gray-100 p-3 rounded flex-1"><strong>範疇 (Scope)</strong><br>做什麼？</div>
+                            <div class="bg-gray-100 p-3 rounded flex-1"><strong>時間 (Time)</strong><br>何時完成？</div>
+                            <div class="bg-gray-100 p-3 rounded flex-1"><strong>成本 (Cost)</strong><br>預算多少？</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-lg text-secondary mb-2 border-l-4 border-secondary pl-2">2. 風險管理矩陣 (Risk Matrix)</h3>
+                        <p class="text-sm text-gray-600 mb-2 font-light">評估風險的「衝擊程度」與「發生機率」。</p>
+                         <table class="w-full text-xs text-center border pro-table">
+                            <tr class="bg-gray-100"><th class="border p-2"></th><th class="border p-2">低衝擊</th><th class="border p-2">高衝擊</th></tr>
+                            <tr><td class="border p-2 font-bold">高機率</td><td class="border p-2 bg-yellow-100">緩解 (Mitigate)</td><td class="border p-2 bg-red-100 text-red-800 font-bold">預防/迴避 (Avoid)</td></tr>
+                            <tr><td class="border p-2 font-bold">低機率</td><td class="border p-2 bg-green-100">接受 (Accept)</td><td class="border p-2 bg-yellow-100">轉移/保險 (Transfer)</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg mt-6">
+                    <button onclick="callGeminiExplain('行銷專案管理與甘特圖', 'ai-content-action')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-action" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Control -->
+    <div id="modal-control-pro" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-xl relative">
+            <button onclick="closeModal('modal-control-pro')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold mb-4 text-primary">績效管理 (Control)</h2>
+                
+                <div class="mb-6">
+                    <h3 class="font-bold text-lg mb-2 text-primary">平衡計分卡 (Balanced Scorecard, BSC)</h3>
+                    <p class="text-sm text-gray-600 mb-3 font-light">不只看錢，還要看長期的健康度。</p>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="p-3 border rounded bg-gray-50 border-l-4 border-yellow-500">
+                            <strong>1. 財務構面</strong><br>股東如何看我們？<br><span class="text-xs text-gray-500">指標：營收、獲利、ROI</span>
+                        </div>
+                        <div class="p-3 border rounded bg-gray-50 border-l-4 border-blue-500">
+                            <strong>2. 顧客構面</strong><br>顧客如何看我們？<br><span class="text-xs text-gray-500">指標：滿意度、留存率、市佔率</span>
+                        </div>
+                        <div class="p-3 border rounded bg-gray-50 border-l-4 border-green-500">
+                            <strong>3. 內部流程</strong><br>我們必須擅長什麼？<br><span class="text-xs text-gray-500">指標：生產效率、瑕疵率、交期</span>
+                        </div>
+                        <div class="p-3 border rounded bg-gray-50 border-l-4 border-purple-500">
+                            <strong>4. 學習成長</strong><br>我們能否持續創造價值？<br><span class="text-xs text-gray-500">指標：員工滿意度、專利數</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <button onclick="callGeminiExplain('行銷績效評估 (KPI & BSC)', 'ai-content-control')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-control" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Objective Hierarchy -->
+    <div id="modal-objective-hierarchy" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-3xl rounded-xl relative">
+            <button onclick="closeModal('modal-objective-hierarchy')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold mb-4 text-primary">目標層級體系</h2>
+                <div class="space-y-4 mb-6">
+                    <div class="bg-gray-900 text-white p-4 rounded shadow-lg border-l-4 border-secondary">
+                        <h4 class="text-lg font-bold text-secondary">Level 1: Mission (使命)</h4>
+                        <p class="text-sm"><strong>定義：</strong>企業存在的根本理由 (Why we exist)。<br><strong>範例：</strong>Google - 整合全球資訊，供大眾使用。</p>
+                    </div>
+                    <div class="flex justify-center"><i class="fa-solid fa-arrow-down text-gray-400"></i></div>
+                    <div class="bg-gray-800 text-white p-4 rounded shadow-lg border-l-4 border-secondary">
+                        <h4 class="text-lg font-bold text-secondary">Level 2: Vision (願景)</h4>
+                        <p class="text-sm"><strong>定義：</strong>企業未來的藍圖與想成為的樣子 (Where we want to be)。<br><strong>範例：</strong>成為全球最受信賴的 AI 企業。</p>
+                    </div>
+                    <div class="flex justify-center"><i class="fa-solid fa-arrow-down text-gray-400"></i></div>
+                    <div class="bg-gray-100 text-gray-800 p-4 rounded border-l-4 border-primary">
+                        <h4 class="text-lg font-bold text-primary">Level 3: Goals (商業目標)</h4>
+                        <p class="text-sm"><strong>定義：</strong>定性或定量的廣泛目標。<br><strong>範例：</strong>擴大亞太區市場佔有率。</p>
+                    </div>
+                    <div class="flex justify-center"><i class="fa-solid fa-arrow-down text-gray-400"></i></div>
+                    <div class="bg-white text-gray-800 p-4 rounded border border-gray-300 border-l-4 border-primary shadow-sm">
+                        <h4 class="text-lg font-bold text-primary">Level 4: Objectives (行銷目標)</h4>
+                        <p class="text-sm"><strong>定義：</strong>具體、可衡量、有時效的指標 (SMART)。<br><strong>範例：</strong>2025 Q4 前，台灣區營收成長 15%。</p>
+                    </div>
+                </div>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg">
+                    <button onclick="callGeminiExplain('企業目標層級體系', 'ai-content-obj')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-obj" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal: SMART Pro -->
+    <div id="modal-smart-pro" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-5xl rounded-xl relative">
+            <button onclick="closeModal('modal-smart-pro')" class="absolute top-4 right-4 text-2xl z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <h2 class="text-2xl font-bold mb-4">SMART 目標原則</h2>
+                <table class="pro-table">
+                    <thead><tr><th>原則</th><th>定義</th><th>範例</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Specific (具體)</strong></td><td>目標明確，不模稜兩可。</td><td>提升 B2B 客戶續約率。</td></tr>
+                        <tr><td><strong>Measurable (衡量)</strong></td><td>有數據可驗證。</td><td>續約率從 75% 提升至 85%。</td></tr>
+                        <tr><td><strong>Achievable (可達)</strong></td><td>具挑戰性但可行。</td><td>基於新系統上線，目標合理。</td></tr>
+                        <tr><td><strong>Relevant (相關)</strong></td><td>符合公司大方向。</td><td>符合訂閱制轉型策略。</td></tr>
+                        <tr><td><strong>Time-bound (時效)</strong></td><td>有截止日期。</td><td>於 2025 Q4 前達成。</td></tr>
+                    </tbody>
+                </table>
+                <div class="border-t pt-4 bg-purple-50 p-4 rounded-lg mt-4">
+                    <button onclick="callGeminiExplain('SMART 目標設定原則', 'ai-content-smart')" class="text-white bg-purple-600 font-bold hover:bg-purple-700 px-4 py-2 rounded transition flex items-center mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>生成深度解析與案例</button>
+                    <div id="ai-content-smart" class="ai-response-box mt-3 hidden markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructor Profile -->
+    <div id="modal-profile" class="modal fixed inset-0 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="modal-content bg-white w-full max-w-4xl rounded-xl relative">
+            <button onclick="closeModal('modal-profile')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-2xl transition z-50"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-body">
+                <div class="flex flex-col md:flex-row items-center border-b pb-8 mb-8">
+                    <img src="https://i.postimg.cc/TPpkDFSq/TONY-lao-shi.jpg" alt="Tony Teacher" class="w-32 h-32 rounded-full object-cover shadow-xl border-4 border-white shrink-0 mb-4 md:mb-0 md:mr-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-primary mb-2">Tony 楊文澤 老師</h2>
+                        <p class="text-xl text-gray-600 mb-3">創新．科技．商業．設計的整合實踐者</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">60年人生歷練</span>
+                            <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">14年上市公司發言人</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold">AI 創作者</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="font-serif font-bold text-lg text-primary border-l-4 border-secondary pl-3 mb-3">關於 TONY</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed text-justify font-light">
+                                大家好，我是 TONY 老師。我有著 60 年的人生歷練，其中包含擔任上市公司發言人長達 14 年的資歷。我不僅是一位大學講師，更是一位對數位行銷科技充滿熱情的資深顧問與創業者。我熱愛創新、喜歡思考，始終站在新科技應用的最前線。作為一位生成式 AI 的創作者與教育者，我致力於發展獨特的教學框架，將設計、行銷、商業與創業的實務經驗融合，幫助大家在 AI 浪潮中找到自己的定位。
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="font-serif font-bold text-lg text-primary border-l-4 border-accent pl-3 mb-3">現職 (Current)</h3>
+                            <ul class="space-y-2 text-sm text-gray-700 font-light">
+                                <li class="flex items-start"><i class="fa-solid fa-briefcase mt-1 mr-2 text-secondary"></i> 龍華科技大學 數位行銷暨跨境商務系 講師</li>
+                                <li class="flex items-start"><i class="fa-solid fa-briefcase mt-1 mr-2 text-secondary"></i> 智策慧品牌顧問有限公司 資深數位行銷科技顧問</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-serif font-bold text-lg text-primary border-l-4 border-accent pl-3 mb-3">學歷 (Education)</h3>
+                            <ul class="space-y-2 text-sm text-gray-700 font-light">
+                                <li class="flex items-start"><i class="fa-solid fa-graduation-cap mt-1 mr-2 text-secondary"></i> 台大 EMBA 商學組</li>
+                                <li class="flex items-start"><i class="fa-solid fa-graduation-cap mt-1 mr-2 text-secondary"></i> 美國 Arizona State University (ASU) 互動式電腦多媒體設計</li>
+                                <li class="flex items-start"><i class="fa-solid fa-graduation-cap mt-1 mr-2 text-secondary"></i> 北科大工業設計</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="space-y-8">
+                         <div>
+                            <h3 class="font-serif font-bold text-lg text-primary border-l-4 border-secondary pl-3 mb-3">關鍵經歷 (Experience)</h3>
+                            <ul class="space-y-3 text-sm text-gray-700 font-light">
+                                <li class="border-b border-gray-100 pb-2">
+                                    <strong class="block text-gray-900 font-bold">宏碁集團建碁 AOPEN (代碼:3046)</strong>
+                                    <span class="text-xs text-gray-500">整合營銷處處長 / 全球品牌行銷總監 / 企業發言人 (14年資歷)</span>
+                                </li>
+                                <li class="border-b border-gray-100 pb-2">
+                                    <strong class="block text-gray-900 font-bold">脈動心聯股份有限公司</strong>
+                                    <span class="text-xs text-gray-500">創辦人暨執行長 (轉型創業)</span>
+                                </li>
+                                <li class="border-b border-gray-100 pb-2">
+                                    <strong class="block text-gray-900 font-bold">台灣數位看板多媒體聯盟 (DSMA)</strong>
+                                    <span class="text-xs text-gray-500">副會長</span>
+                                </li>
+                                <li>
+                                    <strong class="block text-gray-900 font-bold">政府專案計畫主持人</strong>
+                                    <span class="text-xs text-gray-500">台灣農產品生產追溯資訊系統、基隆5G智慧街區、第29屆亞太廣告年會雲創台北總規劃</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="font-serif font-bold text-lg text-primary border-l-4 border-accent pl-3 mb-3">專家授課經歷 (Teaching)</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <ul class="space-y-2 text-xs text-gray-700 font-light">
+                                    <li>• CPC 中國生產力中心『經營管理顧問師班』講師 (第34-40屆)</li>
+                                    <li>• CPC 培育中小企業成長創價能量 講師</li>
+                                    <li>• 台大 EMBA / 長榮 EMBA 業師</li>
+                                    <li>• 台北科技大學工業設計系 / 互動系 / 政大企管系 / 世新傳播管理系 業師</li>
+                                    <li>• 2021 MarTech 行銷科技行銷長認證班 講師</li>
+                                    <li>• 2021/2024/2025 T大使與產業尖兵 講師</li>
+                                    <li>• MarTech 行銷科技經理人培訓班 講師 (第3-6屆)</li>
+                                    <li>• 2021-2023 雲世代商圈數位轉型及永續經營 輔導顧問</li>
+                                    <li>• 2025 新光人壽 AI 工具應用 企業內訓講師</li>
+                                    <li>• 2025 經濟部中小微企業數位轉型計畫 講師</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <div class="flex items-center mb-2">
+                    <img src="https://i.postimg.cc/fT2sQW09/1.png" alt="TONY STUDIO Logo" class="h-8 w-auto mr-2">
+                    <span class="font-bold text-xl tracking-tight">TONY STUDIO</span>
+                </div>
+                <p class="text-xs text-slate-400">Advanced Strategic Planning Methodology</p>
+            </div>
+            <div class="text-xs text-slate-500 text-center md:text-right">
+                <p>&copy; 2025 Tony Studio. All Rights Reserved.</p>
+                <p>Designed for University & Executive Education.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        function openModal(id) { const m=document.getElementById(id); if(m){m.classList.add('active'); document.body.style.overflow='hidden';} }
+        function closeModal(id) { const m=document.getElementById(id); if(m){m.classList.remove('active'); document.body.style.overflow='';} }
+        function scrollToSection(id) { const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); }
+        window.onclick = function(e) { if(e.target.classList.contains('modal')) { e.target.classList.remove('active'); document.body.style.overflow=''; }}
+
+        function generateProposal() {
+            const fields = ['p_name', 'p_why', 'p_what', 'p_how', 'p_who', 'p_cost'];
+            const views = ['view_name', 'view_why', 'view_what', 'view_how', 'view_who', 'view_cost'];
+            let filled = false;
+            let fullContent = "";
+            const projName = document.getElementById('p_name').value || "未命名企劃案";
+            document.getElementById('view_name').innerText = projName;
+            fullContent += `# ${projName}\n\n`;
+
+            fields.forEach((f, index) => {
+                const val = document.getElementById(f).value;
+                if(val) filled = true;
+                const mdText = marked.parse(val || '(未填寫)');
+                document.getElementById(views[index]).innerHTML = mdText;
+                
+                const sectionTitles = ["目的與效益", "內容要點", "實施方式", "執行團隊", "所需經費"];
+                if (index > 0) { 
+                     fullContent += `## ${sectionTitles[index-1]}\n${val}\n\n`;
+                }
+            });
+            
+            document.getElementById('fullscreen-content').innerHTML = marked.parse(fullContent);
+
+            if(filled) {
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('contentState').classList.remove('hidden');
+            }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('gemini-api-key').value;
+            if(key) { localStorage.setItem('gemini_api_key', key); alert('API Key Saved!'); closeModal('modal-api-settings'); }
+        }
+        window.addEventListener('load', () => { const k=localStorage.getItem('gemini_api_key'); if(k) document.getElementById('gemini-api-key').value=k; });
+
+        async function callGeminiAPI(prompt) {
+            const apiKey = localStorage.getItem('gemini_api_key');
+            if(!apiKey) { alert('請先輸入 API Key'); openModal('modal-api-settings'); return null; }
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+            try {
+                const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({contents:[{parts:[{text:prompt}]}]}) });
+                if(!res.ok) throw new Error('API Error');
+                const data = await res.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text;
+            } catch(e) { alert(e.message); return null; }
+        }
+
+        function cleanAndParseJSON(text) {
+            try {
+                let clean = text.replace(/```json\s*/g, '').replace(/```/g, '').trim();
+                const start = clean.indexOf('{');
+                const end = clean.lastIndexOf('}');
+                if (start !== -1 && end !== -1) {
+                    clean = clean.substring(start, end + 1);
+                    return JSON.parse(clean);
+                }
+                throw new Error("No JSON found");
+            } catch (e) {
+                console.error("JSON Parse Error:", e);
+                return null;
+            }
+        }
+
+        // --- GAPLESS TTS ---
+        function pcmToWav(pcmData, sampleRate = 24000, numChannels = 1) {
+            const buffer = new ArrayBuffer(44 + pcmData.length);
+            const view = new DataView(buffer);
+            const writeString = (view, offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
+            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + pcmData.length, true); writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * numChannels * 2, true); view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true); writeString(view, 36, 'data'); view.setUint32(40, pcmData.length, true);
+            const audioData = new Uint8Array(buffer, 44); audioData.set(pcmData); return buffer;
+        }
+
+        async function callGeminiTTS(text, btnElement) {
+            const apiKey = localStorage.getItem('gemini_api_key');
+            if(!apiKey) { alert('請先輸入 API Key'); return; }
+            
+            const originalIcon = btnElement.innerHTML;
+            btnElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i>AI 朗讀中...`;
+            btnElement.classList.add('bg-purple-800', 'text-white');
+            
+            const sentences = text.match(/[^。？！；\n]+[。？！；\n]*/g) || [text];
+            let chunks = [];
+            let tempChunk = "";
+            for (let s of sentences) {
+                if (tempChunk.length + s.length < 300) { tempChunk += s; } 
+                else { chunks.push(tempChunk); tempChunk = s; }
+            }
+            if (tempChunk) chunks.push(tempChunk);
+            
+            let audioQueue = [];
+            let isPlaying = false;
+            let currentIndex = 0;
+
+            const fetchAudio = async (textChunk) => {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ parts: [{ text: textChunk }] }], generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } } } };
+                try {
+                    const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                    if(!res.ok) throw new Error('TTS Error');
+                    const data = await res.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+                } catch(e) { return null; }
+            };
+
+            const processQueue = async () => {
+                if (currentIndex >= chunks.length && audioQueue.length === 0) {
+                    btnElement.innerHTML = originalIcon;
+                    btnElement.classList.remove('bg-purple-800', 'text-white');
+                    return;
+                }
+
+                if (isPlaying) return;
+
+                if (currentIndex < chunks.length && audioQueue.length < 2) {
+                    const audioData = await fetchAudio(chunks[currentIndex++]);
+                    if (audioData) audioQueue.push(audioData);
+                }
+
+                if (audioQueue.length > 0) {
+                    isPlaying = true;
+                    const base64 = audioQueue.shift();
+                    const binaryString = window.atob(base64);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+                    const wav = pcmToWav(bytes);
+                    const blob = new Blob([wav], { type: 'audio/wav' });
+                    const url = URL.createObjectURL(blob);
+                    const audio = new Audio(url);
+                    audio.onended = () => { isPlaying = false; processQueue(); };
+                    audio.play();
+                    processQueue();
+                } else if (currentIndex < chunks.length) {
+                    setTimeout(processQueue, 500);
+                }
+            };
+            processQueue();
+        }
+
+        async function callGeminiExplain(topic, outputId) {
+            const btn = document.querySelector(`button[onclick="callGeminiExplain('${topic}', '${outputId}')"]`);
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>AI 思考中...';
+            btn.classList.add('ai-generating'); 
+            btn.disabled = true;
+            const div = document.getElementById(outputId);
+            div.classList.remove('hidden');
+            div.innerHTML = '<p class="text-gray-500 animate-pulse">正在生成深度解析與案例...</p>';
+            try {
+                const prompt = `你是專業的商業企劃顧問 TONY。請深入講解 '${topic}' 這個方法論，目標對象是大學生與企業經理人。
+                內容必須包含：
+                1. <h4>理論精髓 (Deep Dive)</h4>：深入淺出地解釋定義與核心邏輯。
+                2. <h4>策略意涵 (Strategic Importance)</h4>：為什麼要用這個工具？它解決什麼問題？
+                3. <h4>實戰案例 (Case Study)</h4>：舉一個具體的現代商業案例（例如 Netflix, Tesla, Gogoro, 或台灣本土知名品牌），說明該理論如何被應用。
+                
+                請直接輸出 HTML 格式內容 (不要包含 \`\`\`html 標記)，使用 h4, p, ul, li, strong 標籤進行排版。`;
+
+                const result = await callGeminiAPI(prompt);
+                
+                if (result) {
+                    const cleanHtml = result.replace(/```html/g, '').replace(/```/g, '').trim();
+                    const ttsBtn = `<button onclick="callGeminiTTS(this.parentElement.innerText.replace('🔊 朗讀解說', ''), this)" class="mt-4 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded flex items-center transition-all duration-300"><i class="fa-solid fa-volume-high mr-2"></i>🔊 朗讀解說</button>`;
+                    div.innerHTML = cleanHtml + ttsBtn;
+                } else {
+                    div.innerHTML = '<p class="text-red-500">生成失敗，請檢查 API Key 或網路。</p>';
+                }
+            } catch (error) {
+                console.error(error);
+                div.innerHTML = '<p class="text-red-500">發生錯誤。</p>';
+            } finally {
+                btn.innerHTML = originalText;
+                btn.classList.remove('ai-generating');
+                btn.disabled = false;
+            }
+        }
+
+        async function readAloudProposal() {
+            const btn = document.getElementById('btn-read-proposal');
+            const name = document.getElementById('p_name').value;
+            const why = document.getElementById('p_why').value;
+            const what = document.getElementById('p_what').value;
+            const how = document.getElementById('p_how').value;
+            if(!name) { alert('請先生成企劃書內容'); return; }
+            const textToRead = `企劃案名稱：${name}。目的與效益：${why}。內容要點：${what}。實施方式：${how}`;
+            callGeminiTTS(textToRead, btn);
+        }
+
+        async function callGeminiTOWS() {
+            const btn = document.getElementById('btn-tows-ai');
+            const originalText = btn.innerHTML;
+            try {
+                const s=document.getElementById('t_s').value, w=document.getElementById('t_w').value, o=document.getElementById('t_o').value, t=document.getElementById('t_t').value;
+                if(!s && !w && !o && !t) { alert('請填寫 SWOT'); return; }
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>思考中...';
+                btn.classList.add('ai-generating');
+                const prompt = `你是 TONY 顧問。根據 SWOT (S:${s}, W:${w}, O:${o}, T:${t}) 產出 TOWS 策略。回傳 JSON: { "SO": "...", "WO": "...", "ST": "...", "WT": "..." }`;
+                const res = await callGeminiAPI(prompt);
+                if(res) {
+                    const json = cleanAndParseJSON(res);
+                    if (json) {
+                        document.getElementById('t_so').value = json.SO||''; document.getElementById('t_wo').value = json.WO||'';
+                        document.getElementById('t_st').value = json.ST||''; document.getElementById('t_wt').value = json.WT||'';
+                    }
+                }
+            } catch(e){ alert('格式錯誤或連線失敗'); } finally { btn.innerHTML = originalText; btn.classList.remove('ai-generating'); }
+        }
+
+        async function callGeminiProposal() { 
+            const name = document.getElementById('p_name').value;
+            if (!name) { alert('請先輸入企劃案名稱'); return; }
+            const btn = document.getElementById('btn-prop-ai');
+            const originalText = btn.innerHTML;
+            try {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btn.classList.add('ai-generating');
+                const prompt = `你是專業的商業企劃顧問 TONY。請根據專案名稱「${name}」撰寫一份 TBSA 標準的一頁企劃書初稿。JSON 格式: { "why": "...", "what": "...", "how": "...", "who": "...", "cost": "..." }`;
+                const result = await callGeminiAPI(prompt);
+                if (result) processProposalResult(result);
+            } catch (e) { alert('AI 回傳錯誤'); } finally { btn.innerHTML = originalText; btn.classList.remove('ai-generating'); }
+        }
+
+        async function callGeminiFullProposal() { 
+             const name = document.getElementById('p_name').value;
+            if (!name) { alert('請先輸入企劃案名稱'); return; }
+            const btn = document.getElementById('btn-prop-full-ai');
+            const originalText = btn.innerHTML;
+            try {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btn.classList.add('ai-generating');
+                const prompt = `你是專業的商業企劃顧問 TONY。請針對專案名稱「${name}」撰寫一份『結構嚴謹的完整企劃書』(敘事型)。JSON 格式: { "why": "...", "what": "...", "how": "...", "who": "...", "cost": "..." }`;
+                const result = await callGeminiAPI(prompt);
+                if (result) processProposalResult(result);
+            } catch (e) { alert('AI 回傳錯誤'); } finally { btn.innerHTML = originalText; btn.classList.remove('ai-generating'); }
+        }
+
+        function processProposalResult(result) {
+            const data = cleanAndParseJSON(result);
+            if (data) {
+                document.getElementById('p_why').value = data.why || '';
+                document.getElementById('p_what').value = data.what || '';
+                document.getElementById('p_how').value = data.how || '';
+                document.getElementById('p_who').value = data.who || '';
+                document.getElementById('p_cost').value = data.cost || '';
+                generateProposal(); 
+            } else { alert('AI 回傳格式有誤，請重試一次。'); }
+        }
+
+        // --- Export Helper: Word ---
+        function exportToWord(htmlContent, filename) {
+            const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML to Word</title><style>@page { size: 21cm 29.7cm; margin: 2cm; } body { font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif; } table { border-collapse: collapse; width: 100%; } td, th { border: 1px solid #000; padding: 10px; vertical-align: top; }</style></head><body>`;
+            const footer = "</body></html>";
+            const sourceHTML = header + htmlContent + footer;
+            
+            const blob = new Blob(['\ufeff', sourceHTML], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename + '.doc';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- Export Helper: PDF ---
+        async function exportToPDF(element, filename) {
+            if (!window.jspdf) { alert("PDF 模組載入失敗，請檢查網路連線。"); return; }
+            const { jsPDF } = window.jspdf;
+            
+            // Clone and style for PDF
+            const clone = element.cloneNode(true);
+            clone.style.width = "800px";
+            clone.style.padding = "40px";
+            clone.style.background = "white";
+            clone.style.fontFamily = "'Noto Sans TC', sans-serif";
+            clone.style.position = 'absolute';
+            clone.style.left = '-9999px';
+            clone.style.top = '0';
+            document.body.appendChild(clone);
+            
+            try {
+                const canvas = await html2canvas(clone, { scale: 2, useCORS: true });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgProps = pdf.getImageProperties(imgData);
+                
+                let imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdfHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                    heightLeft -= pdfHeight;
+                }
+
+                pdf.save(filename + '.pdf');
+            } catch (error) {
+                console.error(error);
+                alert("PDF 生成失敗");
+            } finally {
+                document.body.removeChild(clone);
+            }
+        }
+
+        // --- Specific Export Functions ---
+        function exportTOWS(type) {
+            const s = document.getElementById('t_s').value || '';
+            const w = document.getElementById('t_w').value || '';
+            const o = document.getElementById('t_o').value || '';
+            const t = document.getElementById('t_t').value || '';
+            const so = document.getElementById('t_so').value || '';
+            const wo = document.getElementById('t_wo').value || '';
+            const st = document.getElementById('t_st').value || '';
+            const wt = document.getElementById('t_wt').value || '';
+
+            const html = `
+                <div style="width: 800px; padding: 40px; font-family: 'Noto Sans TC', sans-serif;">
+                    <h1 style="text-align:center; color: #0f172a; margin-bottom: 20px;">TOWS 策略矩陣分析</h1>
+                    <p style="text-align:center; color: #666; margin-bottom: 20px;">指導顧問：Tony 楊文澤 | TONY STUDIO</p>
+                    <table border="1" style="width:100%; border-collapse:collapse; border-color: #ccc;">
+                        <tr style="background:#f1f5f9;">
+                            <td width="20%" align="center" style="padding:10px; font-weight:bold;">Internal / External</td>
+                            <td width="40%" style="padding:10px;"><div style="color: #1e3a8a; font-weight:bold;">Strengths</div>${s}</td>
+                            <td width="40%" style="padding:10px;"><div style="color: #9a3412; font-weight:bold;">Weaknesses</div>${w}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px; background:#f0fdf4;"><div style="color: #14532d; font-weight:bold;">Opportunities</div>${o}</td>
+                            <td style="padding:10px;"><div style="color: #0f172a; font-weight:bold;">SO 策略</div>${so}</td>
+                            <td style="padding:10px;"><div style="color: #0f172a; font-weight:bold;">WO 策略</div>${wo}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:10px; background:#fef2f2;"><div style="color: #7f1d1d; font-weight:bold;">Threats</div>${t}</td>
+                            <td style="padding:10px;"><div style="color: #0f172a; font-weight:bold;">ST 策略</div>${st}</td>
+                            <td style="padding:10px;"><div style="color: #0f172a; font-weight:bold;">WT 策略</div>${wt}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+
+            if(type === 'word') {
+                exportToWord(html, 'TONY_STUDIO_TOWS_Matrix');
+            } else {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                div.style.position = 'absolute';
+                div.style.left = '-9999px';
+                div.style.top = '0';
+                div.style.zIndex = '-1';
+                document.body.appendChild(div);
+                
+                exportToPDF(div, 'TONY_STUDIO_TOWS_Matrix').finally(() => {
+                    document.body.removeChild(div);
+                });
+            }
+        }
+
+        function exportProposal(type) {
+            generateProposal();
+            
+            const name = document.getElementById('p_name').value || '未命名專案';
+            const why = document.getElementById('p_why').value || '';
+            const what = document.getElementById('p_what').value || '';
+            const how = document.getElementById('p_how').value || '';
+            const who = document.getElementById('p_who').value || '';
+            const cost = document.getElementById('p_cost').value || '';
+
+            const html = `
+                <div style="width: 800px; padding: 40px; font-family: 'Noto Sans TC', sans-serif;">
+                    <h1 style="text-align:center; border-bottom:3px solid #0f172a; padding-bottom: 10px; margin-bottom: 20px; font-size: 24px; color: #0f172a;">一頁企劃書</h1>
+                    <h2 style="text-align:center; color: #b45309; margin-bottom: 30px;">${name}</h2>
+                    <table border="1" style="width:100%; border-collapse:collapse; border-color: #cbd5e1;">
+                        <tr>
+                            <td width="20%" style="background:#f1f5f9; padding:10px; font-weight:bold;">1. 目的與效益</td>
+                            <td colspan="3" style="padding:10px; white-space: pre-wrap;">${why}</td>
+                        </tr>
+                        <tr>
+                            <td style="background:#f1f5f9; padding:10px; font-weight:bold;">2. 內容要點</td>
+                            <td colspan="3" style="padding:10px; white-space: pre-wrap;">${what}</td>
+                        </tr>
+                        <tr>
+                            <td style="background:#f1f5f9; padding:10px; font-weight:bold;">3. 實施方式</td>
+                            <td colspan="3" style="padding:10px; white-space: pre-wrap;">${how}</td>
+                        </tr>
+                        <tr>
+                            <td style="background:#f1f5f9; padding:10px; font-weight:bold;">4. 執行團隊</td>
+                            <td width="30%" style="padding:10px; white-space: pre-wrap;">${who}</td>
+                            <td width="20%" style="background:#f1f5f9; padding:10px; font-weight:bold;">5. 所需經費</td>
+                            <td width="30%" style="padding:10px; color:#b91c1c; white-space: pre-wrap;">${cost}</td>
+                        </tr>
+                    </table>
+                    <p style="text-align:right; margin-top:20px; color:#64748b; font-size: 12px;">指導：TONY STUDIO</p>
+                </div>
+            `;
+
+            if(type === 'word') {
+                exportToWord(html, 'TONY_STUDIO_Proposal');
+            } else {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                div.style.position = 'absolute';
+                div.style.left = '-9999px';
+                div.style.top = '0';
+                div.style.zIndex = '-1';
+                document.body.appendChild(div);
+                
+                exportToPDF(div, 'TONY_STUDIO_Proposal').finally(() => {
+                    document.body.removeChild(div);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
