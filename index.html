@@ -1852,13 +1852,74 @@
         async function callGeminiAPI(prompt) {
             const apiKey = localStorage.getItem('gemini_api_key');
             if(!apiKey) { showToast('請先輸入 API Key', 'error'); openModal('modal-api-settings'); return null; }
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+            
+            const MAX_RETRIES = 3;
+            const BASE_DELAY_MS = 2000; // 初始延遲 2 秒
+            const primaryModel = 'gemini-3.8-flash';
+            const fallbackModel = 'gemini-3.5-flash';
+            
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+            // 內部共用 Fetch 函數
+            const executeFetch = async (modelName) => {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const error = new Error(`HTTP Error: ${response.status}`);
+                    error.status = response.status;
+                    throw error;
+                }
+                return await response.json();
+            };
+
+            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            // 階段 1：主模型嘗試與指數輪詢重試
+            for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+                try {
+                    const data = await executeFetch(primaryModel);
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+                } catch (error) {
+                    // 規則 3：非 429 錯誤即刻中斷，拋出清晰錯誤
+                    if (error.status !== 429) {
+                        const errMsg = `API 請求失敗 (錯誤碼：${error.status || '未知'})。請檢查參數或金鑰權限。`;
+                        console.error(errMsg, error);
+                        showToast(errMsg, 'error');
+                        return null; 
+                    }
+
+                    // 規則 1 & 2：處理 429 錯誤並進行指數遞增等待
+                    if (attempt < MAX_RETRIES) {
+                        const delay = BASE_DELAY_MS * Math.pow(2, attempt); // 2s, 4s, 8s
+                        const msg = `伺服器忙碌中，正在進行第 ${attempt + 1} 次重試...`;
+                        console.warn(`${msg} (等待 ${delay/1000} 秒)`);
+                        showToast(msg, 'warning'); // 規則 4：前端體驗提示
+                        await sleep(delay);
+                    } else {
+                        console.warn(`主模型連續 ${MAX_RETRIES} 次受限，跳出重試迴圈。`);
+                        break;
+                    }
+                }
+            }
+
+            // 階段 2：規則 5 雙模型備援 (Graceful Fallback)
+            const fallbackMsg = `系統滿載，已切換至備援模型執行`;
+            console.warn(fallbackMsg);
+            showToast(fallbackMsg, 'warning');
+            
             try {
-                const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({contents:[{parts:[{text:prompt}]}]}) });
-                if(!res.ok) throw new Error('API Error');
-                const data = await res.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text;
-            } catch(e) { showToast('API 呼叫失敗，請檢查金鑰', 'error'); return null; }
+                const fallbackData = await executeFetch(fallbackModel);
+                return fallbackData.candidates?.[0]?.content?.parts?.[0]?.text || null;
+            } catch (fallbackError) {
+                console.error('備援模型請求亦失敗:', fallbackError);
+                showToast('伺服器極度壅塞，主模型與備援模型皆無法回應，請稍後再試。', 'error');
+                return null;
+            }
         }
 
         function cleanAndParseJSON(text) {
